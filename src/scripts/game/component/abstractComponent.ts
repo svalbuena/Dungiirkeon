@@ -1,6 +1,6 @@
 import {Coordinate} from "../dimension/coordinate.js";
 import {Size} from "../dimension/size.js";
-import {Area} from "../dimension/area.js";
+import {Hitbox} from "../dimension/myHitbox.js";
 
 export abstract class AbstractComponent {
     name: string
@@ -19,17 +19,17 @@ export abstract class AbstractComponent {
         this.position = position
     }
 
-    getArea(): Area {
-        return this.getAreaAt(this.position)
+    getHitbox(): Hitbox {
+        return this.getHitboxAt(this.position)
     }
 
-    getAreaAt(position: Coordinate) {
+    getHitboxAt(position: Coordinate) {
         const topLeftCorner = position
         const botRightCorner = new Coordinate(topLeftCorner.x + this.size.width - 1, topLeftCorner.y + this.size.height - 1)
-        return new Area(topLeftCorner, botRightCorner)
+        return new Hitbox(topLeftCorner, botRightCorner)
     }
 
     toString(): string {
-        return `[${this.name}, area=${this.getArea().toString()}]`
+        return `[${this.name}, area=${this.getHitbox().toString()}]`
     }
 }
