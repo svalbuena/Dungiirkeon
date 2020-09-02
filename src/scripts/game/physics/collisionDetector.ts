@@ -1,29 +1,39 @@
 import {AbstractComponent} from "../component/abstractComponent.js";
 import {Coordinate} from "../dimension/coordinate.js";
-import {Hitbox} from "../dimension/myHitbox.js";
+import {World} from "../component/static/world.js";
 
 export class CollisionDetector {
-    static doesCollide(component: AbstractComponent, position: Coordinate, collidableComponents: AbstractComponent[], world: AbstractComponent): [boolean, AbstractComponent] {
-        const componentArea = component.getHitboxAt(position)
-        if (this.isOutsideTheWorld(component, position, world)) return [true, world]
-        for (const collidableComponent of collidableComponents) {
-            if (component != collidableComponent) {
-                if (!componentArea.isOutsideOf(collidableComponent.getHitbox())) {
-                    return [true, collidableComponent]
-                }
-            }
+    static isOnGround(component: AbstractComponent, world: World): boolean {
+        const componentHitbox = component.getHitbox()
+        const isJustAboveAnotherComponent = world.getComponents()
+            .filter(collidableComponent => collidableComponent != component)
+            .map(collidableComponent => collidableComponent.getHitbox())
+            .some(collidableHitbox => componentHitbox.isJustAbove(collidableHitbox))
+        const isJustAboveWorldBase = componentHitbox.isOnInnerBase(world.getHitbox())
+        return isJustAboveAnotherComponent ||isJustAboveWorldBase
+    }
+
+    static doesCollide(component: AbstractComponent, atPosition: Coordinate, world: World): [boolean, AbstractComponent] {
+        const componentHitbox = component.getHitboxAt(atPosition)
+        if (this.isOutsideTheWorld(component, atPosition, world)) return [true, world]
+        const collidableComponent = world.getComponents()
+            .filter(worldComponent => worldComponent != component)
+            .find(worldComponent => component != worldComponent && (!componentHitbox.isOutsideOf(worldComponent.getHitbox()) || componentHitbox.isPastOf(worldComponent.getHitbox())))
+        if (collidableComponent == undefined) {
+            return [false, null]
+        } else {
+            return [true, collidableComponent]
         }
-        return [false, null]
     }
 
     static getClosestNonCollidablePosition(component: AbstractComponent, desiredPosition: Coordinate, collidableComponent: AbstractComponent): Coordinate {
-        const desiredDX: number = desiredPosition.x - component.position.x
-        const desiredDY: number = desiredPosition.y - component.position.y
-        const componentHitbox: Hitbox = component.getHitbox()
-        const collidableComponentHitbox: Hitbox = collidableComponent.getHitbox()
+        const desiredDX = desiredPosition.x - component.position.x
+        const desiredDY = desiredPosition.y - component.position.y
+        const componentHitbox = component.getHitbox()
+        const collidableComponentHitbox = collidableComponent.getHitbox()
 
-        let validDX: number = 0
-        let validDY: number = 0
+        let validDX = 0
+        let validDY = 0
         if (componentHitbox.isOutsideOf(collidableComponentHitbox)) {
             if (desiredDX > 0) {
                 validDX = collidableComponentHitbox.topLeftCorner.x - componentHitbox.botRightCorner.x - 1
@@ -47,6 +57,10 @@ export class CollisionDetector {
         }
 
         return new Coordinate(component.position.x + validDX, component.position.y + validDY)
+    }
+
+    private static collidesInTrajectory(component: AbstractComponent, collidableComponent: AbstractComponent, nextPosition: Coordinate): boolean {
+
     }
 
     private static isOutsideTheWorld(component: AbstractComponent, position: Coordinate, world: AbstractComponent): boolean {

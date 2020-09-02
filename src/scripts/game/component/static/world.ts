@@ -9,9 +9,9 @@ import {ComponentMover} from "../../physics/componentMover.js";
 import {Wall} from "./wall.js";
 
 export class World extends StaticComponent {
-    private static readonly GRAVITY: number = 1
+    readonly gravity: number = 1
     private readonly mainCharacter: MainCharacter
-    private readonly components: Array<AbstractComponent> = []
+    private readonly components: AbstractComponent[] = []
 
     constructor(name: string, size: Size) {
         super(name, new Coordinate(0, 0), size)
@@ -29,11 +29,15 @@ export class World extends StaticComponent {
     }
 
     moveMainCharacter(movementAction: MovementAction): void {
-        ComponentMover.moveComponent(this.mainCharacter, movementAction, this.components, this)
+        ComponentMover.moveComponent(this.mainCharacter, movementAction, this)
     }
 
     draw(context: CanvasRenderingContext2D) {
         this.components.forEach(component => component.draw(context))
+    }
+
+    getComponents(): AbstractComponent[] {
+        return this.components
     }
 
     private addComponent(component: AbstractComponent): void {

@@ -24,9 +24,7 @@ export abstract class AbstractComponent {
     }
 
     getHitboxAt(position: Coordinate) {
-        const topLeftCorner = position
-        const botRightCorner = new Coordinate(topLeftCorner.x + this.size.width - 1, topLeftCorner.y + this.size.height - 1)
-        return new Hitbox(topLeftCorner, botRightCorner)
+        return new Hitbox(position, this.size.width, this.size.height)
     }
 
     toString(): string {

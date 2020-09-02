@@ -7,7 +7,7 @@ import {Size} from "./dimension/size.js";
 export class Game {
     private static readonly CANVAS_WIDTH: number = 400
     private static readonly CANVAS_HEIGHT: number = 300
-    private static readonly FRAMES_PER_SECOND: number = 60
+    private static readonly FRAMES_PER_SECOND: number = 120
     private readonly canvas: HTMLCanvasElement
     private readonly context: CanvasRenderingContext2D
     private readonly world: World
@@ -18,7 +18,6 @@ export class Game {
         this.context = this.canvas.getContext('2d')
         this.world = new World('World', new Size(Game.CANVAS_WIDTH, Game.CANVAS_HEIGHT))
         this.keyListener = new KeyListener()
-
         this.drawFrame()
     }
 
@@ -33,9 +32,13 @@ export class Game {
     private drawFrame(): void {
         this.clear()
         const pressedKeys: Set<Key> = this.keyListener.getPressedKeys()
+        this.processKeys(pressedKeys)
+        this.world.draw(this.context)
+    }
+
+    private processKeys(pressedKeys: Set<Key>): void {
         const movementActions: Set<MovementAction> = KeyToActionMovementConverter.convert(pressedKeys)
         movementActions.forEach(movementAction => this.world.moveMainCharacter(movementAction))
-        this.world.draw(this.context)
     }
 
     private clear(): void {
