@@ -28,7 +28,7 @@ export class Hitbox {
     }
 
     isOnInnerBase(that: Hitbox): boolean {
-        return this.botY() + 1 == that.botY()
+        return this.botY() == that.botY()
     }
 
     toString(): string {
@@ -36,7 +36,7 @@ export class Hitbox {
     }
 
     private isOnNextY(that: Hitbox): boolean {
-        return this.botY() - 1 == that.topY()
+        return this.botY() + 1 == that.topY()
     }
 
     private isAnyXSame(that: Hitbox): boolean {

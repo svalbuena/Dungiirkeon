@@ -3,13 +3,23 @@ import {Coordinate} from "../../dimension/coordinate.js";
 import {Size} from "../../dimension/size.js";
 
 export abstract class DynamicComponent extends AbstractComponent {
+    private readonly baseVelocity: number
     private velocity: number
-    private acceleration: number
 
-    protected constructor(name: string, position: Coordinate, size: Size, velocity: number, acceleration: number) {
+    protected constructor(name: string, position: Coordinate, size: Size, baseVelocity: number) {
         super(name, position, size)
-        this.velocity = velocity
-        this.acceleration = acceleration
+        this.baseVelocity = baseVelocity
+        this.velocity = baseVelocity
+    }
+
+    updateStatus(): void {
+       //console.log(`position=${this.position} lastPosition=${this.lastPosition} velocity=${this.velocity}`)
+
+        if (this.position.equals(this.lastPosition)) {
+            this.setVelocity(this.baseVelocity)
+        }
+
+       // console.log(`velocity=${this.velocity}`)
     }
 
     getVelocity(): number {
@@ -18,9 +28,5 @@ export abstract class DynamicComponent extends AbstractComponent {
 
     setVelocity(velocity: number): void {
         this.velocity = velocity
-    }
-
-    getAcceleration(): number {
-        return this.acceleration
     }
 }

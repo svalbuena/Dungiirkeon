@@ -3,5 +3,6 @@ export enum Key {
     Down,
     Left,
     Right,
+    Space,
     Unknown,
 }

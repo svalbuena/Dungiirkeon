@@ -5,11 +5,13 @@ import {Hitbox} from "../dimension/myHitbox.js";
 export abstract class AbstractComponent {
     name: string
     position: Coordinate
+    lastPosition: Coordinate
     readonly size: Size
 
     protected constructor(name: string, position: Coordinate, size: Size) {
         this.name = name
         this.position = position
+        this.lastPosition = position
         this.size = size
     }
 
@@ -17,6 +19,10 @@ export abstract class AbstractComponent {
 
     setPosition(position: Coordinate): void {
         this.position = position
+    }
+
+    setLastPosition(lastPosition: Coordinate): void {
+        this.lastPosition = lastPosition
     }
 
     getHitbox(): Hitbox {

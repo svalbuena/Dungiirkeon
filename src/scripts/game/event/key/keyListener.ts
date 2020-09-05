@@ -32,6 +32,8 @@ export class KeyListener {
             return Key.Left
         } else if (KeyListener.isRightKey(eventKey)) {
             return Key.Right
+        } else if (KeyListener.isSpaceKey(eventKey)) {
+            return Key.Space
         }
         return Key.Unknown
     }
@@ -48,4 +50,6 @@ export class KeyListener {
     private static isRightKey(key: string): boolean {
         return key == 'ArrowRight' || key == 'd'
     }
-}
+    private static isSpaceKey(key: string): boolean {
+        return key == ' '
+    }}

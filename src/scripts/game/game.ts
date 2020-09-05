@@ -1,10 +1,12 @@
 import {World} from "./component/static/world.js";
 import {KeyListener} from "./event/key/keyListener.js";
-import {Key} from "./event/key/key.js";
 import {KeyToActionMovementConverter, MovementAction} from "./action/movement/movementAction.js";
 import {Size} from "./dimension/size.js";
+import {GravityApplier} from "./physics/gravity/gravityApplier.js";
+import {ComponentMover} from "./physics/movement/componentMover.js";
 
 export class Game {
+    private static readonly BASE_ACCELERATION: number = 0
     private static readonly CANVAS_WIDTH: number = 400
     private static readonly CANVAS_HEIGHT: number = 300
     private static readonly FRAMES_PER_SECOND: number = 120
@@ -31,14 +33,25 @@ export class Game {
 
     private drawFrame(): void {
         this.clear()
-        const pressedKeys: Set<Key> = this.keyListener.getPressedKeys()
-        this.processKeys(pressedKeys)
+        this.world.getDynamicComponents().forEach(dynamicComponent => {
+            dynamicComponent.setLastPosition(dynamicComponent.position)
+            GravityApplier.apply(dynamicComponent, this.world)
+        })
+        this.getMovementActions().forEach(movementAction => {
+            const mainCharacter = this.world.getMainCharacter()
+            ComponentMover.move(mainCharacter, movementAction, this.world, Game.BASE_ACCELERATION)
+        })
+
+        this.world.getDynamicComponents().forEach(dynamicComponent => {
+            dynamicComponent.updateStatus()
+        })
+
         this.world.draw(this.context)
     }
 
-    private processKeys(pressedKeys: Set<Key>): void {
-        const movementActions: Set<MovementAction> = KeyToActionMovementConverter.convert(pressedKeys)
-        movementActions.forEach(movementAction => this.world.moveMainCharacter(movementAction))
+    private getMovementActions(): Set<MovementAction> {
+        const pressedKeys = this.keyListener.getPressedKeys()
+        return KeyToActionMovementConverter.convert(pressedKeys)
     }
 
     private clear(): void {

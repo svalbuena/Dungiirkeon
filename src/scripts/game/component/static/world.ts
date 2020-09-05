@@ -1,15 +1,14 @@
 import {AbstractComponent} from "../abstractComponent.js";
 import {MainCharacter} from "../dynamic/mainCharacter.js";
 import {Ground} from "./ground.js";
-import {MovementAction} from "../../action/movement/movementAction.js";
 import {Size} from "../../dimension/size.js";
 import {Coordinate} from "../../dimension/coordinate.js";
 import {StaticComponent} from "./staticComponent.js";
-import {ComponentMover} from "../../physics/componentMover.js";
 import {Wall} from "./wall.js";
+import {DynamicComponent} from "../dynamic/dynamicComponent.js";
 
 export class World extends StaticComponent {
-    readonly gravity: number = 1
+    readonly gravityAcceleration: number = 0
     private readonly mainCharacter: MainCharacter
     private readonly components: AbstractComponent[] = []
 
@@ -22,22 +21,27 @@ export class World extends StaticComponent {
         const wall2: Wall = new Wall('Wall2', this.position.add(this.size.width * 0.8, 0), new Size(this.size.width * 0.1, this.size.height))
 
         this.addComponent(this.mainCharacter)
-        this.addComponent(ground1)
-        this.addComponent(ground2)
+        //this.addComponent(ground1)
+        //this.addComponent(ground2)
         this.addComponent(wall1)
         this.addComponent(wall2)
     }
 
-    moveMainCharacter(movementAction: MovementAction): void {
-        ComponentMover.moveComponent(this.mainCharacter, movementAction, this)
-    }
-
     draw(context: CanvasRenderingContext2D) {
-        this.components.forEach(component => component.draw(context))
+        this.getComponents().forEach(component => component.draw(context))
     }
 
     getComponents(): AbstractComponent[] {
         return this.components
+    }
+
+    getDynamicComponents(): DynamicComponent[] {
+        return <DynamicComponent[]> this.components
+            .filter(component => component instanceof DynamicComponent)
+    }
+
+    getMainCharacter(): MainCharacter {
+        return this.mainCharacter
     }
 
     private addComponent(component: AbstractComponent): void {

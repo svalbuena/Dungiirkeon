@@ -5,6 +5,7 @@ export enum MovementAction {
     MoveDown,
     MoveLeft,
     MoveRight,
+    Jump,
     None
 }
 
@@ -22,6 +23,9 @@ export class KeyToActionMovementConverter {
         }
         if (keys.has(Key.Right)) {
             actions.add(MovementAction.MoveRight)
+        }
+        if (keys.has(Key.Space)) {
+            actions.add(MovementAction.Jump)
         }
         return actions
     }

@@ -3,10 +3,9 @@ import {Coordinate} from "../../dimension/coordinate";
 import {Size} from "../../dimension/size";
 
 export class MainCharacter extends DynamicComponent {
-    private static readonly baseVelocity: number = 2
-    private static readonly baseAcceleration: number = 1
+    private static readonly BASE_VELOCITY: number = 2
     constructor(name: string, position: Coordinate, size: Size) {
-        super(name, position, size, MainCharacter.baseVelocity, MainCharacter.baseAcceleration)
+        super(name, position, size, MainCharacter.BASE_VELOCITY)
     }
 
     draw(context: CanvasRenderingContext2D) {
