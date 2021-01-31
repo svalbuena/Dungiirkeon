@@ -1,10 +1,15 @@
-import {World} from "../../component/static/world.js";
-import {ComponentMover} from "../movement/componentMover.js";
-import {DynamicComponent} from "../../component/dynamic/dynamicComponent.js";
-import {MovementAction} from "../../action/movement/movementAction.js";
+import {World} from "../../component/world.js";
+import {Component} from '../../component/component.js'
+import {CollisionDetector} from '../collision/collisionDetector.js'
+import {Vector2D} from '../../dimension/vector2D.js'
 
 export class GravityApplier {
-    static apply(component: DynamicComponent, world: World) {
-        ComponentMover.move(component, MovementAction.MoveDown, world, world.gravityAcceleration)
-    }
+    /*static apply(component: Component, world: World, elapsedTime: number) {
+        if (!CollisionDetector.isOnGround(component, world)) {
+            const gravity: Vector2D = world.gravity
+            const dX = gravity.x * elapsedTime
+            const dY = gravity.y * elapsedTime
+        }
+        //ComponentMover.move(component, MovementAction.MoveDown, world, world.gravity)
+    }*/
 }

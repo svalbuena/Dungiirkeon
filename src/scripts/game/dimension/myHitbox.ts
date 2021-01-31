@@ -1,30 +1,38 @@
-import {Coordinate} from "./coordinate.js";
+import {Vector2D} from './vector2D.js'
 
 export class Hitbox {
-    readonly topLeftCorner: Coordinate
-    readonly botRightCorner: Coordinate
+    readonly center: Vector2D
+    readonly topLeft: Vector2D
+    readonly botRight: Vector2D
 
-    constructor(topLeftCorner: Coordinate, width: number, height: number) {
-        this.topLeftCorner = topLeftCorner
-        this.botRightCorner = new Coordinate(topLeftCorner.x + width - 1, topLeftCorner.y + height - 1)
+    constructor(center: Vector2D, topLeft: Vector2D, botRight: Vector2D) {
+        this.center = center
+        this.topLeft = topLeft
+        this.botRight = botRight
+    }
+
+    static of(center: Vector2D, topLeft: Vector2D, botRight: Vector2D): Hitbox {
+        return new Hitbox(center, topLeft, botRight)
     }
 
     isOutsideOf(hitbox: Hitbox): boolean {
-        return this.botRightCorner.x < hitbox.topLeftCorner.x ||
-               this.topLeftCorner.x > hitbox.botRightCorner.x ||
-               this.botRightCorner.y < hitbox.topLeftCorner.y ||
-               this.topLeftCorner.y > hitbox.botRightCorner.y
+        return this.botRight.x < hitbox.topLeft.x  ||
+               this.topLeft.x  > hitbox.botRight.x ||
+               this.botRight.y < hitbox.topLeft.y  ||
+               this.topLeft.y  > hitbox.botRight.y
     }
 
     isInsideOf(hitbox: Hitbox): boolean {
-        return this.botRightCorner.x <= hitbox.botRightCorner.x &&
-               this.topLeftCorner.x >= hitbox.topLeftCorner.x &&
-               this.botRightCorner.y <= hitbox.botRightCorner.y &&
-               this.topLeftCorner.y >= hitbox.topLeftCorner.y
+        return this.botRight.x <= hitbox.botRight.x  &&
+               this.topLeft.x  >= hitbox.topLeft.x   &&
+               this.botRight.y <= hitbox.botRight.y  &&
+               this.topLeft.y  >= hitbox.topLeft.y
     }
 
     isJustAbove(that: Hitbox): boolean {
-        return this.isOnNextY(that) && this.isAnyXSame(that)
+        //console.log('this = ' + this + ' that = ' + that)
+        const difference = that.topLeft.sub(this.botRight)
+        return 0 <= difference.y && difference.y <= 1
     }
 
     isOnInnerBase(that: Hitbox): boolean {
@@ -32,7 +40,12 @@ export class Hitbox {
     }
 
     toString(): string {
-        return `[topLeft=${this.topLeftCorner.toString()}, botRight=${this.botRightCorner.toString()}]`
+        return `[topLeft=${this.topLeft.toString()}, botRight=${this.botRight.toString()}]`
+    }
+
+    translate(position: Vector2D): Hitbox {
+        const vector = position.sub(this.center)
+        return Hitbox.of(position, this.topLeft.add(vector), this.botRight.add(vector))
     }
 
     private isOnNextY(that: Hitbox): boolean {
@@ -45,18 +58,18 @@ export class Hitbox {
     }
 
     private leftX(): number {
-        return this.topLeftCorner.x
+        return this.topLeft.x
     }
 
     private rightX(): number {
-        return this.botRightCorner.x
+        return this.botRight.x
     }
 
     private topY(): number {
-        return this.topLeftCorner.y
+        return this.topLeft.y
     }
 
     private botY(): number {
-        return this.botRightCorner.y
+        return this.botRight.y
     }
 }

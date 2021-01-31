@@ -3,5 +3,8 @@
   "version": "1.0.0",
   "dependencies": {
     "@types/jquery": "3.5.1"
+  },
+  "devDependencies": {
+    "typescript": "^4.1.3"
   }
 }

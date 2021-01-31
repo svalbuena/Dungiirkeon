@@ -1,62 +1,61 @@
 import {MovementAction} from "../../action/movement/movementAction.js";
-import {Coordinate} from "../../dimension/coordinate.js";
-import {DynamicComponent} from "../../component/dynamic/dynamicComponent.js";
 import {CollisionDetector} from "../collision/collisionDetector.js";
-import {World} from "../../component/static/world.js";
-import {Path} from "./path.js";
-import {Direction} from "./direction.js";
+import {Component} from '../../component/component.js'
+import {Vector2D} from '../../dimension/vector2D.js'
 
 export class ComponentMover {
-    private static readonly UNITS_PER_FRAME: number = 1
+    static move(component: Component, components: Component[], timeElapsed: number): void {
+        this.moveUntilCollision(component, components, timeElapsed)
+    }
 
-    static move(component: DynamicComponent, action: MovementAction, world: World, acceleration: number): void {
+    private static moveUntilCollision(component: Component, components: Component[], timeElapsed: number): void {
+        const fromPosition = component.position
+        const toPosition = ComponentMover.getNextPosition(component, timeElapsed)
+        while (component.position.sub(fromPosition).magnitude() < toPosition.sub(fromPosition).magnitude()) {
+            const step = ComponentMover.getValidStep(component, components)
+            if (step.magnitude() == 0) {
+                //A step with magnitude 0 means the component can't move
+                break
+            }
+            component.setPosition(component.position.add(step))
+        }
+    }
+
+    private static getValidStep(component: Component, components: Component[]): Vector2D {
+        const fullStep = component.velocity.normalize().mul(1)
+        if (!CollisionDetector.doesCollide(component, component.position.add(fullStep), components)) {
+            return fullStep
+        }
+        const xStep = Vector2D.of(fullStep.x, 0)
+        if (!CollisionDetector.doesCollide(component, component.position.add(xStep), components)) {
+            return xStep
+        }
+        const yStep = Vector2D.of(0, fullStep.y)
+        if (!CollisionDetector.doesCollide(component, component.position.add(yStep), components)) {
+            return yStep
+        }
+        return Vector2D.of(0, 0)
+    }
+
+    private static getNextPosition(component: Component, timeElapsed: number): Vector2D {
+        return component.position.add(component.velocity)
+    }
+
+    static movementActionToForce(action: MovementAction, component: Component, components: Component[]): Vector2D {
         switch (action) {
             case MovementAction.MoveLeft:
-                this.moveUntilCollision(component, Direction.Left, world, acceleration)
-                break
+                return Vector2D.fromDegrees(180, 1)
             case MovementAction.MoveRight:
-                this.moveUntilCollision(component, Direction.Right, world, acceleration)
-                break
+                return Vector2D.fromDegrees(0, 1)
             case MovementAction.MoveDown:
-                this.moveUntilCollision(component, Direction.Down, world, acceleration)
-                break
+                return Vector2D.fromDegrees(90, 1)
+            case MovementAction.MoveUp:
+                return Vector2D.fromDegrees(270, 1)
             case MovementAction.Jump:
-                if (CollisionDetector.isOnGround(component, world)) {
-                    this.moveUntilCollision(component, Direction.Up, world, 1)
+                if (CollisionDetector.isOnGround(component, components)) {
+                    return Vector2D.fromDegrees(270, 12)
                 }
-                break
+                return Vector2D.fromDegrees(0, 0)
         }
-    }
-
-    private static moveUntilCollision(component: DynamicComponent, direction: Direction, world: World, acceleration: number): void {
-        const toPosition = ComponentMover.getNextPosition(component, direction)
-        const path = new Path(component.position, toPosition)
-        while (path.hasNext()) {
-            const position = path.next()
-            if (CollisionDetector.doesCollide(component, position, world)) break
-            component.setPosition(position)
-            component.setVelocity(ComponentMover.computeNewVelocity(component, acceleration))
-        }
-    }
-
-    static getNextPosition(component: DynamicComponent, direction: Direction): Coordinate {
-        const dX = Math.ceil(ComponentMover.UNITS_PER_FRAME * component.getVelocity())
-        const dY = Math.ceil(ComponentMover.UNITS_PER_FRAME * component.getVelocity())
-        switch (direction) {
-            case Direction.Up:
-                return component.position.add(0, -dY)
-            case Direction.Down:
-                return component.position.add(0, dY)
-            case Direction.Left:
-                return component.position.add(-dX, 0)
-            case Direction.Right:
-                return component.position.add(dX, 0)
-            default:
-                return component.position
-        }
-    }
-
-    private static computeNewVelocity(component: DynamicComponent, acceleration: number): number {
-        return component.getVelocity() + acceleration
     }
 }
